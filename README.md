@@ -1,6 +1,3 @@
-# UID
-eDYCUg5suEPgPVOZLysl1qyIqNR2
-
 # Firebase Console
 
 // Import the functions you need from the SDKs you need
