@@ -1,35 +1,52 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import profile, scholarships, auth  # Add auth import
-import os
-
-# Initialize Firebase
+from routes import profile, scholarships
 import services.firebase_admin
 
-app = FastAPI(title="FundMyStudy Backend", version="1.0.0")
-
-# CORS configuration - Allow all for development
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for now
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+app = FastAPI(
+    title="FundMyStudy Backend API",
+    description="Backend API for FundMyStudy scholarship platform",
+    version="1.0.0"
 )
 
-# Routes
-app.include_router(auth.router)  # Add auth router
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",  # Vite dev server
+        "http://localhost:3000",  # React dev server
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["*"]
+)
+
+# Include routers
 app.include_router(profile.router)
 app.include_router(scholarships.router)
 
 @app.get("/")
-def root():
-    return {"message": "FundMyStudy Backend API", "status": "running"}
+async def root():
+    return {
+        "message": "FundMyStudy Backend API",
+        "status": "running",
+        "version": "1.0.0",
+        "endpoints": {
+            "profiles": "/profiles",
+            "scholarships": "/scholarships"
+        }
+    }
 
 @app.get("/health")
-def health_check():
-    return {"status": "healthy", "timestamp": "2024-01-01T00:00:00Z"}
+async def health_check():
+    return {"status": "healthy", "service": "fundmystudy-backend"}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", 
+        port=8000,
+        log_level="info"
+    )

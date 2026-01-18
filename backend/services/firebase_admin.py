@@ -1,13 +1,16 @@
-import firebase_admin
-from firebase_admin import credentials
+import logging
 
-# Initialize Firebase Admin only once
-if not firebase_admin._apps:
+logger = logging.getLogger(__name__)
+
+def initialize_firebase():
+    """Initialize Firebase (no service account needed for REST API)"""
     try:
-        # Try to load service account key
-        cred = credentials.Certificate("serviceAccountKey.json")
-        firebase_admin.initialize_app(cred)
-        print("✅ Firebase Admin initialized successfully")
+        # We're using REST API for authentication, so no Firebase Admin SDK needed
+        logger.info("✅ Using Firebase REST API for authentication")
+        return True
     except Exception as e:
-        print(f"⚠️  Firebase Admin init failed: {e}")
-        print("⚠️  Running without Firebase Admin - some features may not work")
+        logger.error(f"❌ Firebase setup error: {e}")
+        return False
+
+# Initialize on import
+initialize_firebase()

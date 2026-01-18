@@ -1,65 +1,59 @@
 def evaluate_conditions(profile: dict, conditions: list):
+    """
+    Evaluate if profile matches scholarship conditions
+    Returns: {"eligible": bool, "score": float, "reasons": list}
+    """
     matched = 0
     reasons = []
-
-    print(f"\n🔍 Evaluating eligibility for profile: {profile}")
-    print(f"📋 Conditions to check: {conditions}")
-
+    
     for condition in conditions:
-        field = condition["field"]
-        operator = condition["operator"]
-        value = condition["value"]
-
-        profile_value = profile.get(field)
-
-        print(f"\nChecking condition: {field} {operator} {value}")
-        print(f"Profile value: {profile_value}")
-
-        if profile_value is None:
-            print(f"❌ Field '{field}' not found in profile")
+        field = condition.get("field")
+        operator = condition.get("operator")
+        value = condition.get("value")
+        
+        if not field or not operator:
             continue
-
-        # Convert to same type for comparison
-        try:
-            if isinstance(value, (int, float)) and not isinstance(profile_value, (int, float)):
-                profile_value = float(profile_value)
-        except:
-            pass
-
-        if operator == "<=" and profile_value <= value:
-            matched += 1
-            reasons.append(f"{field} ({profile_value}) <= {value}")
-            print(f"✅ Condition matched: {field} <= {value}")
-
-        elif operator == ">=" and profile_value >= value:
-            matched += 1
-            reasons.append(f"{field} ({profile_value}) >= {value}")
-            print(f"✅ Condition matched: {field} >= {value}")
-
-        elif operator == "==" and str(profile_value).lower() == str(value).lower():
-            matched += 1
-            reasons.append(f"{field} ({profile_value}) == {value}")
-            print(f"✅ Condition matched: {field} == {value}")
-
-        elif operator == "IN" and profile_value in value:
-            matched += 1
-            reasons.append(f"{field} ({profile_value}) in {value}")
-            print(f"✅ Condition matched: {field} in {value}")
-
+        
+        profile_value = profile.get(field)
+        
+        # Handle different operators
+        if operator == "<=":
+            try:
+                if float(profile_value) <= float(value):
+                    matched += 1
+                    reasons.append(f"{field} ≤ {value}")
+            except (ValueError, TypeError):
+                pass
+                
+        elif operator == ">=":
+            try:
+                if float(profile_value) >= float(value):
+                    matched += 1
+                    reasons.append(f"{field} ≥ {value}")
+            except (ValueError, TypeError):
+                pass
+                
+        elif operator == "==":
+            if str(profile_value).lower() == str(value).lower():
+                matched += 1
+                reasons.append(f"{field} = {value}")
+                
+        elif operator == "IN":
+            if isinstance(value, list) and profile_value in value:
+                matched += 1
+                reasons.append(f"{field} in {value}")
+            elif str(profile_value).lower() == str(value).lower():
+                matched += 1
+                reasons.append(f"{field} = {value}")
+                
         elif operator == "ANY":
-            matched += 1
-            reasons.append(f"{field} allowed")
-            print(f"✅ Condition matched: ANY {field}")
-
-        else:
-            print(f"❌ Condition failed: {field} {operator} {value}")
-
+            if profile_value:
+                matched += 1
+                reasons.append(f"{field} present")
+    
     score = matched / len(conditions) if conditions else 0
     eligible = score == 1
-
-    print(f"\n📊 Final score: {score} ({matched}/{len(conditions)})")
-    print(f"🎯 Eligible: {eligible}")
-
+    
     return {
         "eligible": eligible,
         "score": round(score, 2),
