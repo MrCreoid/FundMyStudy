@@ -1,26 +1,76 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar1";
-import Home from "./pages/Home";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login1";
 import Profile from "./pages/Profile1";
 import Scholarships from "./pages/Scholarships";
+import Reminders from "./pages/Reminders1";
 
 function App() {
-  const [token, setToken] = useState(null);
-  const [page, setPage] = useState("home");
+  const [token, setToken] = useState(() => localStorage.getItem('authToken') || null);
+  const [page, setPage] = useState(() => localStorage.getItem('lastPage') || "landing");
+
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('authToken', token);
+    } else {
+      localStorage.removeItem('authToken');
+    }
+  }, [token]);
+
+  useEffect(() => {
+    localStorage.setItem('lastPage', page);
+  }, [page]);
+
+  const handleLogin = (newToken) => {
+    setToken(newToken);
+    setPage("profile");
+  };
+
+  const handleLogout = () => {
+    setToken(null);
+    setPage("landing");
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('lastPage');
+    
+    // Clear any Firebase session if needed
+    if (window.auth) {
+      window.auth.signOut();
+    }
+  };
 
   return (
-    <>
-      <Navbar loggedIn={!!token} setPage={setPage} />
-
-      {page === "home" && <Home />}
-      {page === "login" && <Login onLogin={(t) => {
-        setToken(t);
-        setPage("profile");
-      }} />}
-      {page === "profile" && token && <Profile token={token} />}
-      {page === "scholarships" && token && <Scholarships token={token} />}
-    </>
+    <div className="app">
+      <Navbar 
+        loggedIn={!!token} 
+        setPage={setPage} 
+        currentPage={page}
+        onLogout={handleLogout}
+      />
+      
+      <main>
+        {page === "landing" && <Landing />}
+        {page === "login" && <Login onLogin={handleLogin} />}
+        {page === "profile" && token && <Profile token={token} />}
+        {page === "scholarships" && token && <Scholarships token={token} />}
+        {page === "reminders" && <Reminders />}
+      </main>
+      
+      <footer style={{
+        textAlign: 'center',
+        padding: '2rem',
+        marginTop: '4rem',
+        color: '#64748b',
+        fontSize: '0.9rem',
+        borderTop: '1px solid #e2e8f0'
+      }}>
+        <p>FundMyStudy - Empowering Rural Students Through Education</p>
+        <p>© 2024 FundMyStudy. All rights reserved. | Made with ❤️ for India</p>
+        <p style={{ fontSize: '0.8rem', marginTop: '1rem' }}>
+          Contact: support@fundmystudy.in | Helpline: 1800-XXX-XXXX
+        </p>
+      </footer>
+    </div>
   );
 }
 

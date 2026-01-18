@@ -1,0 +1,63 @@
+/* Cards - Modern Glassmorphism */
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.4s ease;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+.card h3 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  color: var(--dark);
+}
+
+.card p {
+  color: #64748b;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.card b {
+  color: var(--dark);
+  font-weight: 600;
+}
+
+.card .score-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--success), #34d399);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.scholarship-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}

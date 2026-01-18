@@ -1,3 +1,4 @@
-requests
-beautifulsoup4
-google-cloud-firestore
+requests==2.31.0
+beautifulsoup4==4.12.2
+google-cloud-firestore==2.13.2
+firebase-admin==6.2.0
