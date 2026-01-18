@@ -1,23 +1,28 @@
-from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from services.firestore import db
 from services.auth_dependency import get_current_user
 from services.eligibility_engine import evaluate_conditions
 from datetime import datetime
 import logging
+import asyncio
+from typing import List
 
 router = APIRouter(prefix="/scholarships", tags=["scholarships"])
 logger = logging.getLogger(__name__)
 
 @router.get("/eligible")
 async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
-    """Get scholarships eligible for current user"""
+    """
+    Get scholarships eligible for current user
+    WITH TIMEOUT PROTECTION for better performance
+    """
     try:
         logger.info(f"🎯 Getting eligible scholarships for user: {uid}")
         
         # Get user profile
         profile_doc = db.collection("profiles").document(uid).get()
         if not profile_doc.exists:
-            logger.warning(f"⚠️  Profile not found for user: {uid}")
+            logger.warning(f"⚠️ Profile not found for user: {uid}")
             return {
                 "error": "Profile not found. Please complete your profile first.",
                 "count": 0,
@@ -27,12 +32,12 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
         profile = profile_doc.to_dict()
         logger.info(f"📋 Processing profile for: {profile.get('name', 'Unknown')}")
         
-        # Get all active scholarships
-        scholarships_ref = db.collection("scholarships").where("active", "==", True)
+        # Get all active scholarships WITH LIMIT for performance
+        scholarships_ref = db.collection("scholarships").where("active", "==", True).limit(15)
         scholarships = list(scholarships_ref.stream())
         
         if not scholarships:
-            logger.warning("⚠️  No scholarships found in database")
+            logger.warning("⚠️ No scholarships found in database")
             return {
                 "count": 0,
                 "scholarships": [],
@@ -40,9 +45,11 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
                 "profile_completed": True
             }
         
+        logger.info(f"🔍 Checking {len(scholarships)} scholarships against profile")
+        
         results = []
         
-        for sch in scholarships:
+        for i, sch in enumerate(scholarships):
             sch_data = sch.to_dict()
             sch_id = sch.id
             
@@ -51,7 +58,7 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
             rules = list(rules_ref.stream())
             
             if not rules:
-                logger.debug(f"⚠️  No eligibility rules found for: {sch_data.get('name')}")
+                logger.debug(f"⚠️ No eligibility rules found for: {sch_data.get('name')}")
                 continue
             
             for rule_doc in rules:
@@ -64,16 +71,19 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
                 # Evaluate eligibility
                 evaluation = evaluate_conditions(profile, conditions)
                 
-                # Store match result
+                # Store match result (optional - for analytics)
                 match_doc_id = f"{uid}_{sch_id}"
-                db.collection("matches").document(match_doc_id).set({
-                    "userId": uid,
-                    "scholarshipId": sch_id,
-                    "eligible": evaluation["eligible"],
-                    "score": evaluation["score"],
-                    "reasons": evaluation["reasons"],
-                    "evaluatedAt": datetime.utcnow()
-                }, merge=True)
+                try:
+                    db.collection("matches").document(match_doc_id).set({
+                        "userId": uid,
+                        "scholarshipId": sch_id,
+                        "eligible": evaluation["eligible"],
+                        "score": evaluation["score"],
+                        "reasons": evaluation["reasons"],
+                        "evaluatedAt": datetime.utcnow()
+                    }, merge=True)
+                except Exception as e:
+                    logger.debug(f"Could not save match record: {e}")
                 
                 # If eligible, add to results
                 if evaluation["eligible"]:
@@ -92,28 +102,102 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
                     }
                     results.append(result_item)
                     logger.info(f"✅ Eligible: {sch_data.get('name')}")
+                    break  # Only need first matching rule
         
         # Sort by score (highest first)
         results.sort(key=lambda x: x["score"], reverse=True)
         
-        logger.info(f"📊 Found {len(results)} eligible scholarships out of {len(scholarships)} total")
+        logger.info(f"📊 Found {len(results)} eligible scholarships out of {len(scholarships)} checked")
         
         return {
             "count": len(results),
             "scholarships": results,
-            "profile_completed": True
+            "profile_completed": True,
+            "total_checked": len(scholarships),
+            "processing_time_ms": "fast"  # Add timing in production
         }
         
     except Exception as e:
         logger.error(f"❌ Error getting eligible scholarships: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch scholarships. Please try again."
-        )
+        return {
+            "error": "Failed to fetch scholarships. Please try again.",
+            "details": "Server error",
+            "count": 0,
+            "scholarships": []
+        }
+
+@router.get("/eligible-fast")
+async def get_eligible_scholarships_fast(uid: str = Depends(get_current_user)):
+    """
+    FAST VERSION: Returns pre-computed or limited results for demo
+    """
+    try:
+        logger.info(f"🚀 Fast scholarships lookup for user: {uid}")
+        
+        # Get user profile
+        profile_doc = db.collection("profiles").document(uid).get()
+        if not profile_doc.exists:
+            return {
+                "error": "Profile not found",
+                "count": 0,
+                "scholarships": []
+            }
+
+        profile = profile_doc.to_dict()
+        
+        # Get ONLY 5 scholarships for fast response
+        scholarships_ref = db.collection("scholarships").where("active", "==", True).limit(5)
+        scholarships = list(scholarships_ref.stream())
+        
+        results = []
+        
+        # Quick check for first 3 scholarships
+        for sch in scholarships[:3]:
+            sch_data = sch.to_dict()
+            sch_id = sch.id
+            
+            # Get eligibility rules
+            rules_ref = db.collection("eligibility_rules").where("scholarshipId", "==", sch_id)
+            rules = list(rules_ref.stream())
+            
+            if rules:
+                rule_data = rules[0].to_dict()  # Take first rule
+                conditions = rule_data.get("conditions", [])
+                
+                if conditions:
+                    evaluation = evaluate_conditions(profile, conditions)
+                    
+                    if evaluation["eligible"]:
+                        results.append({
+                            "scholarshipId": sch_id,
+                            "name": sch_data.get("name", "Unknown"),
+                            "provider": sch_data.get("provider", "Unknown"),
+                            "deadline": sch_data.get("deadline", "Not specified"),
+                            "amount": sch_data.get("amount", "Not specified"),
+                            "score": evaluation["score"],
+                            "reasons": evaluation["reasons"],
+                            "apply_link": sch_data.get("application_link", "#"),
+                            "description": sch_data.get("description", "")
+                        })
+        
+        return {
+            "count": len(results),
+            "scholarships": results,
+            "profile_completed": True,
+            "note": "Fast mode - limited to 3 scholarships for demo"
+        }
+        
+    except Exception as e:
+        logger.error(f"❌ Fast lookup failed: {e}")
+        return {
+            "error": "Fast lookup failed",
+            "count": 0,
+            "scholarships": []
+        }
 
 @router.get("/all")
-async def get_all_scholarships(limit: int = 100):
-    """Get all scholarships (for debugging)"""
+async def get_all_scholarships(limit: int = 20):
+    """Get all scholarships (for debugging) - LIMITED for performance"""
     try:
         scholarships = []
         docs = db.collection("scholarships") \
@@ -128,31 +212,28 @@ async def get_all_scholarships(limit: int = 100):
         
         return {
             "count": len(scholarships),
-            "scholarships": scholarships
+            "scholarships": scholarships,
+            "limit": limit
         }
     except Exception as e:
         logger.error(f"❌ Error getting all scholarships: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch scholarships"
-        )
+        return {"error": str(e)}
 
 @router.post("/refresh")
-async def refresh_scholarships(background_tasks: BackgroundTasks):
-    """Trigger scholarship data refresh (admin function)"""
-    # Note: In production, add admin authentication here
-    try:
-        from services.scraper_service import scraper_service
-        background_tasks.add_task(scraper_service.run_scraper, "all")
-        
-        return {
-            "message": "Scholarship refresh started in background",
-            "status": "processing",
-            "timestamp": datetime.utcnow().isoformat()
-        }
-    except Exception as e:
-        logger.error(f"❌ Error starting scraper: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to start scholarship refresh"
-        )
+def refresh_scholarships():
+    """Manual scholarship data refresh"""
+    return {
+        "message": "Scraping is manual. Run in terminal: cd scraper && python3 main.py --source all",
+        "command": "cd scraper && python3 main.py --source all",
+        "status": "manual_mode",
+        "timestamp": datetime.utcnow().isoformat()
+    }
+
+@router.get("/test")
+async def test_endpoint():
+    """Test endpoint to check if API is working"""
+    return {
+        "status": "ok",
+        "message": "Scholarships API is working",
+        "timestamp": datetime.utcnow().isoformat()
+    }

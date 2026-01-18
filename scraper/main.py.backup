@@ -1,4 +1,6 @@
+#!/usr/bin/env python3
 """
+Scholarship Scraper - Main Script
 Run with: python main.py --source all
 """
 import argparse

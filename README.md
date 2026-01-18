@@ -26,7 +26,8 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
 
-# SCRAPE MANUALLY (run in root)
+# Run Commands
 
-export GOOGLE_CLOUD_PROJECT=fundmystudy-527
-python scraper/main.py
+npm run dev
+uvicorn app:app --reload
+python3 main.py --source all
