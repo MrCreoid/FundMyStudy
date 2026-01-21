@@ -19,7 +19,7 @@ export default function Home() {
           maxWidth: '800px',
           margin: '0 auto 2rem'
         }}>
-          FundMyStudy helps Indian students discover government scholarships
+          FundMyStudy helps Indian students discover scholarships
           they are eligible for using verified data and intelligent eligibility matching.
         </p>
         <button style={{ 
