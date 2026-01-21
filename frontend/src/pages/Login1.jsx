@@ -106,7 +106,7 @@ export default function Login({ onLogin }) {
             ) : 'Sign In'}
           </button>
           
-          <div style={{ 
+          {/* <div style={{ 
             marginTop: '1.5rem', 
             textAlign: 'center',
             color: '#64748b'
@@ -119,7 +119,7 @@ export default function Login({ onLogin }) {
             }} onClick={() => alert('Please contact your school administrator to create an account.')}>
               Contact your school
             </span></p>
-          </div>
+          </div> */}
         </div>
         
         <div style={{ 
