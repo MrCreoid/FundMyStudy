@@ -9,9 +9,6 @@ const user = auth.currentUser;
 if (user) {
   const token = await user.getIdToken();
   // Use token in API call
-} else {
-  // Redirect to login
-  window.location.href = '/login';
 }
 
 export default function Scholarships({ token }) {
