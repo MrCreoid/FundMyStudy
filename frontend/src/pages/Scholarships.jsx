@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import "../styles/cards.css";
 import { API_URL } from '../config';
+import { auth } from './firebase'; // Adjust path to your firebase.js
+
+// Get the current user
+const user = auth.currentUser;
+
+if (user) {
+  const token = await user.getIdToken();
+  // Use token in API call
+} else {
+  // Redirect to login
+  window.location.href = '/login';
+}
 
 export default function Scholarships({ token }) {
   const [list, setList] = useState([]);
