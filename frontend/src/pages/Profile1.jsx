@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { API_URL } from '../config';
 
 export default function Profile({ token }) {
   const [profile, setProfile] = useState({
@@ -19,6 +18,9 @@ export default function Profile({ token }) {
   };
 
   const saveProfile = async () => {
+
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
     if (!profile.name || !profile.state || !profile.course) {
       alert("Please fill in required fields: Name, State, and Course");
       return;
