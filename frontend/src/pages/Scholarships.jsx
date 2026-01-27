@@ -23,13 +23,13 @@ const fetchScholarships = async () => {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-    const response = await fetch(`${API_URL}/scholarships/eligible`, {
-      headers: { 
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      signal: controller.signal
-    });
+    const token = await user.getIdToken(); // Get Firebase token
+    fetch(`${API_URL}/scholarships/eligible`, {
+    headers: {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  }
+});
     
     clearTimeout(timeoutId);
     

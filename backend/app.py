@@ -39,6 +39,11 @@ async def get_scholarships():
         {"id": 2, "name": "Scholarship 2", "amount": 10000}
     ]
 
+@app.get("/eligible")
+async def check_eligibility():
+    # Temporary route to stop the 404 errors
+    return {"message": "Eligibility endpoint placeholder", "data": []}
+
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
