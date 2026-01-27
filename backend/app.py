@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import HTTPException
 
 # Update import paths
 from routes import profile, scholarships
@@ -29,6 +30,14 @@ app.include_router(scholarships.router)
 @app.get("/")
 def root():
     return {"message": "FundMyStudy Backend API", "status": "running"}
+
+@app.get("/scholarships")
+async def get_scholarships():
+    # Return mock data for now
+    return [
+        {"id": 1, "name": "Scholarship 1", "amount": 5000},
+        {"id": 2, "name": "Scholarship 2", "amount": 10000}
+    ]
 
 @app.get("/health")
 def health_check():
