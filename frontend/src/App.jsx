@@ -65,7 +65,7 @@ function App() {
         borderTop: '1px solid #e2e8f0'
       }}>
         <p>FundMyStudy - Empowering Rural Students Through Education</p>
-        <p>© 2024 FundMyStudy. All rights reserved. | Made with ❤️ for India</p>
+        <p>© 2026 FundMyStudy. All rights reserved. | Made with ❤️ for India</p>
         <p style={{ fontSize: '0.8rem', marginTop: '1rem' }}>
           Contact: support@fundmystudy.in | Helpline: 1800-XXX-XXXX
         </p>
