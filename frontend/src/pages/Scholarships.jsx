@@ -23,7 +23,7 @@ const fetchScholarships = async () => {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
-    const response = await fetch(`${API_URL}/eligible`, {
+    const response = await fetch(`${API_URL}/scholarships/eligible`, {
       headers: { 
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"
