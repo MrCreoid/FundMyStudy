@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../styles/cards.css";
 import { API_URL } from '../config';
-import { auth } from './firebase'; // Adjust path to your firebase.js
+import { auth } from '../firebase'; // Adjust path to your firebase.js
 
 // Get the current user
 const user = auth.currentUser;
