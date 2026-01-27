@@ -23,7 +23,6 @@ export default function Scholarships({ token }) {
       if (!user) {
         setError("Not logged in. Please login first.");
         setLoading(false);
-        window.location.href = '/login';
         return;
       }
       
