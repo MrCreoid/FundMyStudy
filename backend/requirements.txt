@@ -1,6 +1,6 @@
 fastapi==0.104.1
 uvicorn==0.24.0
-google-cloud-firestore==2.13.2
+google-cloud-firestore==2.23.0  # CHANGED: from 2.13.2 to 2.23.0
 firebase-admin==6.2.0
 requests==2.31.0
 python-multipart==0.0.6
