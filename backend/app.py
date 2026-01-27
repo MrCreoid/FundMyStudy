@@ -3,14 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import time
 import os
-from dotenv import load_dotenv
 
 # Update import paths
 from routes import profile, scholarships
 from services.firebase_admin import initialize_firebase
-
-# Load environment variables
-load_dotenv()
 
 # Initialize FastAPI app with enhanced metadata
 app = FastAPI(
@@ -26,7 +22,7 @@ app = FastAPI(
 )
 
 # Get frontend URL from environment with fallback
-FRONTEND_URL = os.getenv("FRONTEND_URL", "https://fundmystudy-frontend.onrender.com")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://fundmystudy.onrender.com")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 # Initialize Firebase
@@ -119,23 +115,3 @@ def server_info():
         "environment": "development" if DEBUG else "production",
         "frontend_url": FRONTEND_URL
     }
-
-if __name__ == "__main__":
-    import uvicorn
-    
-    # Development vs production settings
-    if DEBUG:
-        uvicorn.run(
-            "app:app",
-            host="0.0.0.0",
-            port=8000,
-            reload=True,
-            log_level="debug"
-        )
-    else:
-        uvicorn.run(
-            app,
-            host="0.0.0.0",
-            port=int(os.getenv("PORT", 8000)),
-            log_level="info"
-        )
