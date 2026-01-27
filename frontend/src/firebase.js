@@ -5,6 +5,9 @@ const firebaseConfig = {
   apiKey: "AIzaSyCzmKUJt7XD7M9MjMxltn22ceps1Yt186Y",
   authDomain: "fundmystudy-527.firebaseapp.com",
   projectId: "fundmystudy-527",
+  storageBucket: "fundmystudy-527.firebasestorage.app",
+  messagingSenderId: "389826221589",
+  appId: "1:389826221589:web:6eda2b3a3890a759d5601c"
 };
 
 const app = initializeApp(firebaseConfig);

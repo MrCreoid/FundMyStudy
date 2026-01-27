@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/cards.css";
+import { API_URL } from '../config';
 
 export default function Scholarships({ token }) {
   const [list, setList] = useState([]);
@@ -21,7 +22,8 @@ const fetchScholarships = async () => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
-    const response = await fetch("http://127.0.0.1:8000/scholarships/eligible", {
+    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+    const response = await fetch(`${API_URL}/eligible`, {
       headers: { 
         "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"

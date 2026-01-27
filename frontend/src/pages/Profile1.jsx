@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_URL } from '../config';
 
 export default function Profile({ token }) {
   const [profile, setProfile] = useState({
@@ -27,7 +28,8 @@ export default function Profile({ token }) {
     setSaveSuccess(false);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/profiles", {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const response = await fetch(`${API_URL}/profiles`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

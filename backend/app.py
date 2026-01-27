@@ -1,13 +1,22 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+# Update import paths
 from routes import profile, scholarships
+from services.firebase_admin import initialize_firebase
 
 app = FastAPI(title="FundMyStudy Backend", version="1.0.0")
 
-# CORS configuration
+# Initialize Firebase
+initialize_firebase()
+
+# CORS configuration - UPDATE WITH YOUR FRONTEND URL
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "https://fundmystudy-frontend.onrender.com",  # Your frontend URL
+        "http://localhost:5173"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
