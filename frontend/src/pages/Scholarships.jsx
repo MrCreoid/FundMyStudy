@@ -23,7 +23,7 @@ export default function Scholarships({ setPage }) {
       const token = await user.getIdToken();
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
 
       const API_URL = import.meta.env.VITE_API_URL ||
         ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
