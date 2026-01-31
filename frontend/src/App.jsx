@@ -67,7 +67,7 @@ function App() {
         {page === "login" && <Login onLogin={handleLogin} setPage={setPage} />}
         {page === "signup" && <Signup onLogin={handleLogin} />}
         {page === "profile" && token && <Profile token={token} />}
-        {page === "scholarships" && token && <Scholarships token={token} />}
+        {page === "scholarships" && token && <Scholarships token={token} setPage={setPage} />}
         {page === "reminders" && <Reminders />}
       </main>
 

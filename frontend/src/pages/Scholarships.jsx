@@ -3,7 +3,7 @@ import { auth } from "../firebase";
 import { mockScholarships } from "../data/mockData";
 import "../styles/cards.css";
 
-export default function Scholarships() {
+export default function Scholarships({ setPage }) {
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -165,6 +165,22 @@ export default function Scholarships() {
     return { bg: '#64748b', label: 'Potential Match' };
   };
 
+  // Helper to format date
+  const formatDeadline = (dateString) => {
+    if (!dateString || dateString === "Not specified") return "Not specified";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // Return original if not a valid date
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return dateString;
+    }
+  };
+
   return (
     <div className="container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -181,7 +197,7 @@ export default function Scholarships() {
           <p>Complete your profile or update your information to see matching scholarships.</p>
           <div style={{ marginTop: '1.5rem' }}>
             <button
-              onClick={() => window.location.hash = "#profile"}
+              onClick={() => setPage("profile")}
               style={{ marginRight: '1rem' }}
             >
               Update Profile
@@ -229,7 +245,7 @@ export default function Scholarships() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', color: '#64748b', fontSize: '1rem' }}>
                     <div><b>🏛️ Provider:</b> {s.provider}</div>
                     <div><b>💰 Amount:</b> {s.amount}</div>
-                    <div><b>⏳ Deadline:</b> {s.deadline}</div>
+                    <div><b>⏳ Deadline:</b> {formatDeadline(s.deadline)}</div>
                   </div>
                 </div>
               );
@@ -276,7 +292,7 @@ export default function Scholarships() {
               </div>
               <div>
                 <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Application Deadline</p>
-                <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>{selectedScholarship.deadline}</p>
+                <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>{formatDeadline(selectedScholarship.deadline)}</p>
               </div>
             </div>
 

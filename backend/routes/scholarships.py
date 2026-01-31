@@ -30,8 +30,8 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
 
         profile = profile_doc.to_dict()
         
-        # Get active scholarships (limited for performance)
-        scholarships_ref = db.collection("scholarships").where("active", "==", True).limit(15)
+        # Get active scholarships (increased limit to ensure we find matches)
+        scholarships_ref = db.collection("scholarships").where("active", "==", True).limit(200)
         scholarships = list(scholarships_ref.stream())
         
         if not scholarships:

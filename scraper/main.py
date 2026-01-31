@@ -16,9 +16,10 @@ print()
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    from scrapers.nsp_scraper import NSPScraper
     from scrapers.mock_scraper import MockScholarshipScraper
+    from scrapers.buddy4study_scraper import Buddy4StudyScraper
     from utils.firestore_helper import FirestoreHelper
+    from utils.cleanup import clean_fake_scholarships
     print("✅ All modules imported successfully")
 except ImportError as e:
     print(f"❌ Import error: {e}")
@@ -40,52 +41,44 @@ def scrape_scholarships(source: str = "all"):
     try:
         logger.info(f"Starting scholarship scraping for source: {source}")
         
+        # CLEANUP FIRST
+        try:
+            clean_fake_scholarships()
+        except Exception as e:
+            logger.warning(f"Cleanup warning: {e}")
+
         all_scholarships = []
         
         # ==================================================
-        # PART 1: ALWAYS try real NSP first (most important)
+        # PART 1: Buddy4Study (Real Corporate/Private Scholarships)
         # ==================================================
-        if source in ["all", "nsp", "mock"]:
+        if source in ["all", "buddy4study"]:
             print("\n" + "="*60)
-            print("🎯 STEP 1: ATTEMPTING REAL NSP (National Scholarship Portal) SCRAPING")
+            print("🌍 STEP 1: SCRAPING BUDDY4STUDY (Real Private Scholarships)")
             print("="*60)
             
             try:
-                nsp_scraper = NSPScraper()
-                nsp_scholarships = nsp_scraper.scrape()
+                b4s_scraper = Buddy4StudyScraper()
+                b4s_scholarships = b4s_scraper.scrape()
                 
-                if nsp_scholarships:
-                    all_scholarships.extend(nsp_scholarships)
-                    
-                    # Count real vs realistic scholarships
-                    real_scholarships = [s for s in nsp_scholarships if "nsp_real" in s.get("source", "")]
-                    realistic_scholarships = [s for s in nsp_scholarships if "realistic" in s.get("source", "")]
-                    
-                    if real_scholarships:
-                        print(f"✅ SUCCESS: Got {len(real_scholarships)} REAL scholarships from NSP website!")
-                        for i, sch in enumerate(real_scholarships[:2], 1):  # Show first 2
-                            print(f"   {i}. {sch['name'][:50]}...")
-                    elif realistic_scholarships:
-                        print(f"ℹ️  Using {len(realistic_scholarships)} REALISTIC NSP-based scholarships")
-                        print("   (Actual NSP website data structure detected)")
-                        for i, sch in enumerate(realistic_scholarships[:2], 1):
-                            print(f"   {i}. {sch['name'][:50]}...")
-                    else:
-                        print("⚠️  No NSP scholarships found")
-                        
+                if b4s_scholarships:
+                    all_scholarships.extend(b4s_scholarships)
+                    print(f"✅ Added {len(b4s_scholarships)} REAL private scholarships from Buddy4Study")
+                    for i, sch in enumerate(b4s_scholarships[:2], 1):
+                        print(f"   {i}. {sch['name'][:50]}...")
                 else:
-                    print("❌ NSP scraper returned no data")
-                    
+                    print("⚠️  No Buddy4Study scholarships found")
             except Exception as e:
-                print(f"❌ Error in NSP scraping: {e}")
-                print("🔧 Continuing with mock data...")
-        
+                print(f"❌ Error scraping Buddy4Study: {e}")
+
+
         # ==================================================
-        # PART 2: Add mock data for state scholarships
+        # PART 3: Add mock data for state scholarships
         # ==================================================
-        if source in ["all", "mock", "state"] and len(all_scholarships) < 10:  # Only add if we need more
+        # Only add mock if we have very raw results (backup)
+        if source in ["all", "mock", "state"] and len(all_scholarships) < 5:  
             print("\n" + "="*60)
-            print("🏛️  STEP 2: ADDING STATE SCHOLARSHIPS (Mock for Demo)")
+            print("🏛️  STEP 3: ADDING STATE SCHOLARSHIPS (Mock for Demo)")
             print("="*60)
             
             try:
@@ -99,11 +92,6 @@ def scrape_scholarships(source: str = "all"):
                 if state_scholarships:
                     all_scholarships.extend(state_scholarships)
                     print(f"✅ Added {len(state_scholarships)} STATE scholarships for demo")
-                    
-                    # Show examples
-                    print("   Examples of state scholarships added:")
-                    for i, sch in enumerate(state_scholarships[:3], 1):
-                        print(f"   {i}. {sch['name']} ({sch.get('state', 'N/A')})")
                 else:
                     print("⚠️  No state scholarships found in mock data")
                     
@@ -111,11 +99,11 @@ def scrape_scholarships(source: str = "all"):
                 print(f"❌ Error getting state scholarships: {e}")
         
         # ==================================================
-        # PART 3: Add central scholarships if needed
+        # PART 4: Add central scholarships if needed
         # ==================================================
-        if source in ["all", "mock", "central"] and len(all_scholarships) < 8:
+        if source in ["all", "mock", "central"] and len(all_scholarships) < 5:
             print("\n" + "="*60)
-            print("⭐ STEP 3: ADDING CENTRAL GOVERNMENT SCHOLARSHIPS")
+            print("⭐ STEP 4: ADDING CENTRAL GOVERNMENT SCHOLARSHIPS")
             print("="*60)
             
             try:
@@ -134,10 +122,6 @@ def scrape_scholarships(source: str = "all"):
                 if central_scholarships:
                     all_scholarships.extend(central_scholarships)
                     print(f"✅ Added {len(central_scholarships)} CENTRAL government scholarships")
-                    
-                    # Show examples
-                    for i, sch in enumerate(central_scholarships[:2], 1):
-                        print(f"   {i}. {sch['name'][:50]}...")
                 else:
                     print("⚠️  No central scholarships found")
                     
