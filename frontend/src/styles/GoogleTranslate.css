@@ -1,0 +1,92 @@
+/* Google Translate Customization */
+.google-translate-container {
+    display: inline-block;
+    margin-left: 1rem;
+}
+
+/* Hide Google Branding Header */
+.goog-te-banner-frame {
+    display: none !important;
+}
+
+body {
+    top: 0 !important;
+}
+
+/* Custom Button Look */
+.goog-te-gadget-simple {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 20px !important;
+    padding: 4px 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    height: 32px !important;
+}
+
+[data-theme="dark"] .goog-te-gadget-simple {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.goog-te-gadget-simple:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: var(--primary) !important;
+}
+
+/* Language Text color */
+.goog-te-gadget-simple span {
+    color: var(--text-main) !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+}
+
+/* Hide Google Icon */
+.goog-te-gadget-icon {
+    display: none !important;
+}
+
+/* Custom Dropdown Styling */
+.goog-te-menu-frame {
+    box-shadow: var(--shadow) !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--input-border) !important;
+    z-index: 99999 !important;
+}
+
+/* Inside the iframe (harder to style, but we try standard rules) */
+.goog-te-menu2 {
+    background-color: var(--card-bg) !important;
+    border: none !important;
+    border-radius: 12px !important;
+}
+
+.goog-te-menu2-item div, 
+.goog-te-menu2-item:link div, 
+.goog-te-menu2-item:visited div, 
+.goog-te-menu2-item:active div {
+    color: var(--text-main) !important;
+    background-color: transparent !important;
+    font-family: inherit !important;
+}
+
+.goog-te-menu2-item:hover div {
+    background-color: var(--primary) !important;
+    color: white !important;
+}
+
+/* Hide Tooltips */
+.goog-tooltip {
+    display: none !important;
+}
+.goog-tooltip:hover {
+    display: none !important;
+}
+.goog-text-highlight {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}

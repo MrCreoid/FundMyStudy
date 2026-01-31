@@ -1,5 +1,7 @@
 # app.py
 import os
+from dotenv import load_dotenv
+load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import scholarships, profile, auth
@@ -31,6 +33,8 @@ app.add_middleware(
 app.include_router(scholarships.router)
 app.include_router(profile.router)
 app.include_router(auth.router)
+from routes import reminders
+app.include_router(reminders.router)
 
 @app.get("/")
 def read_root():

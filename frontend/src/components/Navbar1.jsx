@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "../styles/navbar.css";
+import GoogleTranslate from "./GoogleTranslate";
 
 const NavLink = ({ page, label, setPage, currentPage }) => (
   <span
@@ -62,6 +63,7 @@ export default function Navbar({ loggedIn, setPage, currentPage, onLogout, theme
           <>
             <NavLink page="profile" label="Profile" setPage={setPage} currentPage={currentPage} />
             <NavLink page="scholarships" label="Scholarships" setPage={setPage} currentPage={currentPage} />
+            <NavLink page="reminders" label="Reminders" setPage={setPage} currentPage={currentPage} />
             <span
               onClick={handleLogout}
               style={{
@@ -75,7 +77,9 @@ export default function Navbar({ loggedIn, setPage, currentPage, onLogout, theme
             </span>
           </>
         )}
-        <NavLink page="reminders" label="Reminders" setPage={setPage} currentPage={currentPage} />
+
+
+        <GoogleTranslate />
 
         <div
           onClick={toggleTheme}

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 export default function Profile({ token }) {
   const [profile, setProfile] = useState({
     name: "",
+    phone: "",
     income: "",
     caste: "",
     category: "",
@@ -55,6 +56,7 @@ export default function Profile({ token }) {
 
       setProfile({
         name: data.name || "",
+        phone: data.phone || "",
         income: data.income || "",
         caste: data.caste || "",
         category: data.category || "",
@@ -111,6 +113,7 @@ export default function Profile({ token }) {
         },
         body: JSON.stringify({
           name: profile.name,
+          phone: profile.phone,
           income: parseFloat(profile.income) || 0,
           caste: profile.caste || "General",
           category: profile.category || "Not Minority",
@@ -193,6 +196,21 @@ export default function Profile({ token }) {
                 onChange={e => handleChange('income', e.target.value)}
                 style={inputStyle}
                 min="0"
+              />
+            </div>
+
+            <div>
+              <label style={labelStyle}>
+                Phone Number <span style={{ color: '#666', fontSize: '0.8rem' }}>(Optional)</span>
+              </label>
+              <input
+                type="tel"
+                placeholder="e.g., 9876543210"
+                value={profile.phone || ""}
+                onChange={e => handleChange('phone', e.target.value)}
+                style={inputStyle}
+                pattern="[0-9]{10}"
+                maxLength="10"
               />
             </div>
 

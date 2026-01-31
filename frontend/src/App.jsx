@@ -68,7 +68,7 @@ function App() {
         {page === "signup" && <Signup onLogin={handleLogin} />}
         {page === "profile" && token && <Profile token={token} />}
         {page === "scholarships" && token && <Scholarships token={token} setPage={setPage} />}
-        {page === "reminders" && <Reminders />}
+        {page === "reminders" && <Reminders token={token} />}
       </main>
 
       <footer style={{

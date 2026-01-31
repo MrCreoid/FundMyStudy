@@ -81,19 +81,19 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
             
             # If eligible, add to results
             if evaluation["eligible"]:
-                    result_item = {
-                        "scholarshipId": sch_id,
-                        "name": sch_data.get("name", "Unknown Scholarship"),
-                        "provider": sch_data.get("provider", "Unknown Provider"),
-                        "deadline": sch_data.get("deadline", "Not specified"),
-                        "amount": sch_data.get("amount", "Not specified"),
-                        "score": evaluation["score"],
-                        "reasons": evaluation["reasons"],
-                        "apply_link": sch_data.get("application_link") or 
-                                     sch_data.get("source_url", "#"),
-                        "description": sch_data.get("description", ""),
-                        "icon": sch_data.get("icon", "🎓")
-                    }
+                result_item = {
+                    "scholarshipId": sch_id,
+                    "name": sch_data.get("name", "Unknown Scholarship"),
+                    "provider": sch_data.get("provider", "Unknown Provider"),
+                    "deadline": sch_data.get("deadline", "Not specified"),
+                    "amount": sch_data.get("amount", "Not specified"),
+                    "score": evaluation["score"],
+                    "reasons": evaluation["reasons"],
+                    "apply_link": sch_data.get("application_link") or 
+                                 sch_data.get("source_url", "#"),
+                    "description": sch_data.get("description", ""),
+                    "icon": sch_data.get("icon", "🎓")
+                }
                 results.append(result_item)
                 logger.debug(f"✅ Eligible: {sch_data.get('name')}")
         

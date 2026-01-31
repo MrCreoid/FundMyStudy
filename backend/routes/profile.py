@@ -60,6 +60,7 @@ async def create_or_update_profile(
             "name": str(profile.get("name", "")).strip(),
             "state": str(profile.get("state", "")).strip(),
             "course": str(profile.get("course", "")).strip(),
+            "phone": str(profile.get("phone", "")).strip(),  # New Field
             "income": float(profile.get("income", 0)) if profile.get("income") else 0,
             "caste": str(profile.get("caste", "General")).strip(),
             "category": str(profile.get("category", "Not Minority")).strip(),

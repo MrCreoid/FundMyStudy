@@ -118,17 +118,11 @@
   transform: rotate(90deg);
 }
 
-[data-theme="dark"] .modal-content {
-  background: var(--card-bg);
-  color: antiquewhite;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 [data-theme="dark"] .card h3,
 [data-theme="dark"] .card p,
 [data-theme="dark"] .card strong,
 [data-theme="dark"] .card span {
-  color: antiquewhite;
+  color: var(--text-main);
 }
 
 [data-theme="dark"] .close-btn {
@@ -149,4 +143,104 @@
 @keyframes scaleUp {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
+}
+
+/* Reminders Page Specific Aesthetics */
+.test-email-btn {
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow);
+}
+
+.test-email-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4);
+}
+
+.scholarship-suggestion-card {
+  padding: 1.5rem;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 280px;
+}
+
+.amount-tag {
+  background: #e0e7ff;
+  color: #4338ca;
+  padding: 6px 12px;
+  border-radius: 24px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+[data-theme="dark"] .amount-tag {
+  background: rgba(79, 70, 229, 0.2);
+  color: #a5b4fc;
+}
+
+.deadline-tag {
+  color: #dc2626;
+  font-weight: bold;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+[data-theme="dark"] .deadline-tag {
+  color: #fca5a5;
+}
+
+.scholarship-name {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.scholarship-provider {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.subscribe-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.subscribe-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.subscribed-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--success);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: default;
+  opacity: 0.9;
 }

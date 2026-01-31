@@ -55,3 +55,25 @@ async def get_current_user(
     
     logger.info(f"✅ Authenticated user: {user_info['uid']} ({user_info['email']})")
     return user_info["uid"]
+
+async def get_current_user_details(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Verify Firebase ID token and return full user details (uid, email)"""
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    token = credentials.credentials
+    user_info = await verify_firebase_token(token)
+    
+    if not user_info:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired authentication token",
+        )
+    
+    return user_info

@@ -74,3 +74,18 @@
   color: var(--primary);
   background: rgba(79, 70, 229, 0.1);
 }
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+  }
+  
+  .links {
+    gap: 1rem;
+  }
+}
+
+
+
+
+

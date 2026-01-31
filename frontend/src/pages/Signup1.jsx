@@ -7,6 +7,7 @@ export default function Signup({ onLogin }) {
     const [password, setPassword] = useState("");
     const [profile, setProfile] = useState({
         name: "",
+        phone: "",
         income: "",
         caste: "",
         category: "",
@@ -43,7 +44,7 @@ export default function Signup({ onLogin }) {
         setLoading(true);
         setError("");
 
-        if (!email || !password || !profile.name || !profile.state || !profile.course) {
+        if (!email || !password || !profile.name || !profile.state || !profile.course || !profile.phone) {
             setError("Please fill in all required fields (marked *)");
             setLoading(false);
             return;
@@ -68,6 +69,7 @@ export default function Signup({ onLogin }) {
                 },
                 body: JSON.stringify({
                     name: profile.name,
+                    phone: profile.phone,
                     income: parseFloat(profile.income) || 0,
                     caste: profile.caste || "General",
                     category: profile.category || "Not Minority",
@@ -154,6 +156,18 @@ export default function Signup({ onLogin }) {
                                     onChange={e => handleProfileChange('name', e.target.value)}
                                     style={inputStyle}
                                     placeholder="Student Name"
+                                />
+                            </div>
+
+                            <div style={formGroup}>
+                                <label style={labelStyle}>Phone Number <span style={{ color: '#ef4444' }}>*</span></label>
+                                <input
+                                    type="tel"
+                                    value={profile.phone}
+                                    onChange={e => handleProfileChange('phone', e.target.value)}
+                                    style={inputStyle}
+                                    placeholder="9876543210"
+                                    maxLength="10"
                                 />
                             </div>
 
