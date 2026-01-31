@@ -183,7 +183,14 @@ export default function Scholarships({ setPage }) {
 
   return (
     <div className="container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="scholarship-header" style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem',
+        flexWrap: 'wrap',
+        gap: '1rem'
+      }}>
         <h2>Your Eligible Scholarships</h2>
         <button onClick={fetchScholarships}>
           🔄 Refresh
@@ -278,13 +285,14 @@ export default function Scholarships({ setPage }) {
             </div>
 
             <div style={{
-              background: '#f8fafc',
+              background: 'var(--card-bg)',
               padding: '1.5rem',
               borderRadius: '12px',
               marginBottom: '1.5rem',
               display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '1rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1.5rem',
+              border: '1px solid var(--input-border)'
             }}>
               <div>
                 <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Scholarship Amount</p>

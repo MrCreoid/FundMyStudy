@@ -9,7 +9,8 @@ export default function Profile({ token }) {
     category: "",
     state: "",
     course: "", // Stores the final value
-    marks: ""
+    marks: "",
+    gender: ""
   });
 
   // Logic to determine if "Other" is active
@@ -62,7 +63,8 @@ export default function Profile({ token }) {
         category: data.category || "",
         state: data.state || "",
         course: loadedCourse,
-        marks: data.marks || ""
+        marks: data.marks || "",
+        gender: data.gender || ""
       });
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -97,8 +99,8 @@ export default function Profile({ token }) {
         ? "http://localhost:8000"
         : "https://fundmystudy-1.onrender.com");
 
-    if (!profile.name || !profile.state || !profile.course) {
-      alert("Please fill in required fields: Name, State, and Course");
+    if (!profile.name || !profile.state || !profile.course || !profile.gender) {
+      alert("Please fill in required fields: Name, State, Course, and Gender");
       return;
     }
 
@@ -119,6 +121,7 @@ export default function Profile({ token }) {
           category: profile.category || "Not Minority",
           state: profile.state,
           course: profile.course,
+          gender: profile.gender,
           marks: parseFloat(profile.marks) || 0
         })
       });
@@ -215,6 +218,23 @@ export default function Profile({ token }) {
             </div>
 
             <div>
+              <label style={labelStyle}>
+                Gender <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <select
+                value={profile.gender}
+                onChange={e => handleChange('gender', e.target.value)}
+                style={inputStyle}
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Transgender">Transgender</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
               <label style={labelStyle}>Caste Category</label>
               <select
                 value={profile.caste}
@@ -305,10 +325,10 @@ export default function Profile({ token }) {
           }}>
             <button
               onClick={saveProfile}
-              disabled={saving || !profile.name || !profile.state || !profile.course}
+              disabled={saving || !profile.name || !profile.state || !profile.course || !profile.gender}
               style={{
                 padding: '0.875rem 2.5rem',
-                opacity: (!profile.name || !profile.state || !profile.course) ? 0.6 : 1
+                opacity: (!profile.name || !profile.state || !profile.course || !profile.gender) ? 0.6 : 1
               }}
             >
               {saving ? 'Saving...' : '💾 Save Profile'}

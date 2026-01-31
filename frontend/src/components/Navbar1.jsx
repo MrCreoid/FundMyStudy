@@ -13,6 +13,7 @@ const NavLink = ({ page, label, setPage, currentPage }) => (
 
 export default function Navbar({ loggedIn, setPage, currentPage, onLogout, theme, toggleTheme }) {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,25 +37,22 @@ export default function Navbar({ loggedIn, setPage, currentPage, onLogout, theme
 
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-      <div className="logo" onClick={() => setPage("landing")} style={{ cursor: 'pointer' }}>
+      <div className="logo" onClick={() => { setPage("landing"); setMenuOpen(false); }} style={{ cursor: 'pointer' }}>
         FundMyStudy
       </div>
-      <div className="links">
+
+      <button className="mobile-menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+        {menuOpen ? '✕' : '☰'}
+      </button>
+
+      <div className={`links ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(false)}>
         <NavLink page="landing" label="Home" setPage={setPage} currentPage={currentPage} />
         {!loggedIn ? (
           <>
             <NavLink page="login" label="Login" setPage={setPage} currentPage={currentPage} />
             <span
               onClick={() => setPage("signup")}
-              className={currentPage === "signup" ? 'active' : ''}
-              style={{
-                background: '#4f46e5',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                marginLeft: '0.5rem',
-                cursor: 'pointer'
-              }}
+              className={`signup-btn ${currentPage === "signup" ? 'active' : ''}`}
             >
               Sign Up
             </span>
@@ -64,15 +62,7 @@ export default function Navbar({ loggedIn, setPage, currentPage, onLogout, theme
             <NavLink page="profile" label="Profile" setPage={setPage} currentPage={currentPage} />
             <NavLink page="scholarships" label="Scholarships" setPage={setPage} currentPage={currentPage} />
             <NavLink page="reminders" label="Reminders" setPage={setPage} currentPage={currentPage} />
-            <span
-              onClick={handleLogout}
-              style={{
-                color: '#ef4444',
-                background: 'rgba(239, 68, 68, 0.1)',
-                padding: '0.5rem 1rem',
-                borderRadius: '10px'
-              }}
-            >
+            <span onClick={handleLogout} className="logout-btn">
               Logout
             </span>
           </>

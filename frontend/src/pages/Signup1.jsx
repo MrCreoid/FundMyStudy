@@ -13,7 +13,8 @@ export default function Signup({ onLogin }) {
         category: "",
         state: "",
         course: "",
-        marks: ""
+        marks: "",
+        gender: ""
     });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
@@ -44,7 +45,7 @@ export default function Signup({ onLogin }) {
         setLoading(true);
         setError("");
 
-        if (!email || !password || !profile.name || !profile.state || !profile.course || !profile.phone) {
+        if (!email || !password || !profile.name || !profile.state || !profile.course || !profile.phone || !profile.gender) {
             setError("Please fill in all required fields (marked *)");
             setLoading(false);
             return;
@@ -75,6 +76,7 @@ export default function Signup({ onLogin }) {
                     category: profile.category || "Not Minority",
                     state: profile.state,
                     course: profile.course,
+                    gender: profile.gender,
                     marks: parseFloat(profile.marks) || 0
                 })
             });
@@ -171,7 +173,22 @@ export default function Signup({ onLogin }) {
                                 />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div style={formGroup}>
+                                <label style={labelStyle}>Gender <span style={{ color: '#ef4444' }}>*</span></label>
+                                <select
+                                    value={profile.gender}
+                                    onChange={e => handleProfileChange('gender', e.target.value)}
+                                    style={inputStyle}
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Transgender">Transgender</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
                                 <div style={formGroup}>
                                     <label style={labelStyle}>State <span style={{ color: '#ef4444' }}>*</span></label>
                                     <input
@@ -206,7 +223,7 @@ export default function Signup({ onLogin }) {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
                                 <div style={formGroup}>
                                     <label style={labelStyle}>Income (₹)</label>
                                     <input
@@ -229,7 +246,7 @@ export default function Signup({ onLogin }) {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
                                 <div style={formGroup}>
                                     <label style={labelStyle}>Category</label>
                                     <select
