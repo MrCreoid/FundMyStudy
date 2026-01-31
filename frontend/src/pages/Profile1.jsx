@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Profile({ token }) {
   const [profile, setProfile] = useState({
@@ -7,18 +7,74 @@ export default function Profile({ token }) {
     caste: "",
     category: "",
     state: "",
-    course: "",
+    course: "", // Stores the final value
     marks: ""
   });
+
+  // Logic to determine if "Other" is active
+  const COURSE_OPTIONS = [
+    "B.Tech", "MBBS", "B.Sc", "B.Com", "B.A.", "BBA", "BCA",
+    "LLB", "B.Arch", "B.Pharm", "Diploma", "Class 11",
+    "Class 12", "Vocational"
+  ];
+
+  const [isOtherCourse, setIsOtherCourse] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [token]);
+
+  const fetchProfile = async () => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const response = await fetch(`${API_URL}/profiles/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const loadedCourse = data.course || "";
+
+        // Determine if loaded course is "Other"
+        const isCustom = loadedCourse && !COURSE_OPTIONS.includes(loadedCourse);
+        setIsOtherCourse(isCustom);
+
+        setProfile({
+          name: data.name || "",
+          income: data.income || "",
+          caste: data.caste || "",
+          category: data.category || "",
+          state: data.state || "",
+          course: loadedCourse,
+          marks: data.marks || ""
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
   const handleChange = (field, value) => {
     setProfile(prev => ({ ...prev, [field]: value }));
   };
 
-  const saveProfile = async () => {
+  const handleCourseSelect = (value) => {
+    if (value === "Other") {
+      setIsOtherCourse(true);
+      // Don't clear course immediately if user mis-clicks, but typically "Other" starts empty or previous custom
+      if (COURSE_OPTIONS.includes(profile.course)) {
+        setProfile(prev => ({ ...prev, course: "" }));
+      }
+    } else {
+      setIsOtherCourse(false);
+      setProfile(prev => ({ ...prev, course: value }));
+    }
+  };
 
+  const saveProfile = async () => {
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
     if (!profile.name || !profile.state || !profile.course) {
@@ -27,10 +83,8 @@ export default function Profile({ token }) {
     }
 
     setSaving(true);
-    setSaveSuccess(false);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
       const response = await fetch(`${API_URL}/profiles`, {
         method: "POST",
         headers: {
@@ -52,9 +106,8 @@ export default function Profile({ token }) {
         throw new Error(`Failed to save profile: ${response.status}`);
       }
 
-      setSaveSuccess(true);
       alert("Profile saved successfully!");
-      
+
     } catch (error) {
       alert(`Failed to save profile: ${error.message}`);
     } finally {
@@ -66,15 +119,15 @@ export default function Profile({ token }) {
     <div className="container">
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <h2>Complete Your Profile</h2>
-        <p style={{ marginBottom: '2rem' }}>
+        <p style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>
           Fill in your details to get personalized scholarship recommendations.
           <br />
           <span style={{ color: '#ef4444' }}>*</span> Required fields
         </p>
-        
+
         <div className="card">
-          <div style={{ 
-            display: 'grid', 
+          <div style={{
+            display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: '1.5rem',
             marginBottom: '2rem'
@@ -83,17 +136,17 @@ export default function Profile({ token }) {
               <label style={labelStyle}>
                 Full Name <span style={{ color: '#ef4444' }}>*</span>
               </label>
-              <input 
+              <input
                 placeholder="Enter your full name"
                 value={profile.name}
                 onChange={e => handleChange('name', e.target.value)}
                 style={inputStyle}
               />
             </div>
-            
+
             <div>
               <label style={labelStyle}>Annual Family Income (₹)</label>
-              <input 
+              <input
                 type="number"
                 placeholder="e.g., 250000"
                 value={profile.income}
@@ -102,10 +155,10 @@ export default function Profile({ token }) {
                 min="0"
               />
             </div>
-            
+
             <div>
               <label style={labelStyle}>Caste Category</label>
-              <select 
+              <select
                 value={profile.caste}
                 onChange={e => handleChange('caste', e.target.value)}
                 style={inputStyle}
@@ -117,10 +170,10 @@ export default function Profile({ token }) {
                 <option value="ST">ST</option>
               </select>
             </div>
-            
+
             <div>
               <label style={labelStyle}>Minority Category</label>
-              <select 
+              <select
                 value={profile.category}
                 onChange={e => handleChange('category', e.target.value)}
                 style={inputStyle}
@@ -130,34 +183,49 @@ export default function Profile({ token }) {
                 <option value="Not Minority">Not Minority</option>
               </select>
             </div>
-            
+
             <div>
               <label style={labelStyle}>
                 State <span style={{ color: '#ef4444' }}>*</span>
               </label>
-              <input 
+              <input
                 placeholder="e.g., Maharashtra"
                 value={profile.state}
                 onChange={e => handleChange('state', e.target.value)}
                 style={inputStyle}
               />
             </div>
-            
+
             <div>
               <label style={labelStyle}>
                 Course <span style={{ color: '#ef4444' }}>*</span>
               </label>
-              <input 
-                placeholder="e.g., B.Tech, B.Sc"
-                value={profile.course}
-                onChange={e => handleChange('course', e.target.value)}
+              <select
+                value={isOtherCourse ? "Other" : profile.course}
+                onChange={e => handleCourseSelect(e.target.value)}
                 style={inputStyle}
-              />
+              >
+                <option value="">Select Course</option>
+                {COURSE_OPTIONS.map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+                <option value="Other">Other (Add your own)</option>
+              </select>
+
+              {isOtherCourse && (
+                <input
+                  placeholder="Type your course name..."
+                  value={profile.course}
+                  onChange={e => handleChange('course', e.target.value)}
+                  style={{ ...inputStyle, marginTop: '0.5rem', borderColor: '#6366f1' }}
+                  autoFocus
+                />
+              )}
             </div>
-            
+
             <div>
               <label style={labelStyle}>Percentage/CGPA</label>
-              <input 
+              <input
                 type="number"
                 step="0.01"
                 placeholder="e.g., 87.5"
@@ -169,18 +237,18 @@ export default function Profile({ token }) {
               />
             </div>
           </div>
-          
-          <div style={{ 
-            display: 'flex', 
+
+          <div style={{
+            display: 'flex',
             gap: '1rem',
             justifyContent: 'flex-end',
             borderTop: '1px solid #e2e8f0',
             paddingTop: '2rem'
           }}>
-            <button 
-              onClick={saveProfile} 
+            <button
+              onClick={saveProfile}
               disabled={saving || !profile.name || !profile.state || !profile.course}
-              style={{ 
+              style={{
                 padding: '0.875rem 2.5rem',
                 opacity: (!profile.name || !profile.state || !profile.course) ? 0.6 : 1
               }}
@@ -198,7 +266,7 @@ const labelStyle = {
   display: 'block',
   marginBottom: '0.5rem',
   fontWeight: '600',
-  color: '#334155',
+  color: 'var(--text-muted)',
   fontSize: '0.95rem'
 };
 
@@ -209,5 +277,7 @@ const inputStyle = {
   borderRadius: '10px',
   fontSize: '1rem',
   transition: 'all 0.3s ease',
-  background: 'white'
+  color: 'var(--text-main)',
+  background: 'var(--input-bg)',
+  borderColor: 'var(--input-border)'
 };

@@ -1,9 +1,9 @@
-export default function Landing() {
+export default function Landing({ setPage }) {
   return (
     <div className="container">
       <div className="hero-section" style={{ textAlign: 'center', marginBottom: '4rem' }}>
         <h1 style={{ fontSize: '4rem', lineHeight: '1.1' }}>
-          Discover Government Scholarships 
+          Discover Government Scholarships
           <span style={{ display: 'block', fontSize: '3rem', color: '#4f46e5' }}>
             You Are Eligible For
           </span>
@@ -12,21 +12,30 @@ export default function Landing() {
           FundMyStudy helps Indian students from rural areas find verified government scholarships
           using secure authentication and intelligent eligibility matching.
         </p>
-        
-        <div style={{ 
-          display: 'flex', 
-          gap: '1rem', 
+
+        <div style={{
+          display: 'flex',
+          gap: '1rem',
           justifyContent: 'center',
           marginTop: '3rem'
         }}>
-          <button style={{ padding: '1rem 3rem', fontSize: '1.1rem' }}>
+          <button
+            onClick={() => setPage('signup')}
+            style={{ padding: '1rem 3rem', fontSize: '1.1rem' }}
+          >
             Get Started for Free →
           </button>
-          <button style={{ 
-            background: 'white', 
-            color: '#4f46e5',
-            border: '2px solid #4f46e5'
-          }}>
+          <button
+            onClick={() => {
+              const element = document.querySelector('.how-it-works');
+              if (element) element.scrollIntoView({ behavior: 'smooth' });
+            }}
+            style={{
+              background: 'white',
+              color: '#4f46e5',
+              border: '2px solid #4f46e5'
+            }}
+          >
             Learn More
           </button>
         </div>
@@ -77,7 +86,7 @@ export default function Landing() {
             <h3>Create Profile</h3>
             <p>Sign up and enter your academic details, income, category, and other required information.</p>
           </div>
-          
+
           <div style={{ flex: 1, minWidth: '250px' }}>
             <div style={{
               background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
@@ -95,7 +104,7 @@ export default function Landing() {
             <h3>Automatic Eligibility Check</h3>
             <p>Our system matches your profile with all government scholarship criteria in real-time.</p>
           </div>
-          
+
           <div style={{ flex: 1, minWidth: '250px' }}>
             <div style={{
               background: 'linear-gradient(135deg, #a855f7, #d946ef)',

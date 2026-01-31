@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar1";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login1";
+import Signup from "./pages/Signup1";
 import Profile from "./pages/Profile1";
 import Scholarships from "./pages/Scholarships";
 import Reminders from "./pages/Reminders1";
@@ -9,6 +10,16 @@ import Reminders from "./pages/Reminders1";
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem('authToken') || null);
   const [page, setPage] = useState(() => localStorage.getItem('lastPage') || "landing");
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || "light");
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === "light" ? "dark" : "light");
+  };
 
   useEffect(() => {
     if (token) {
@@ -32,7 +43,7 @@ function App() {
     setPage("landing");
     localStorage.removeItem('authToken');
     localStorage.removeItem('lastPage');
-    
+
     // Clear any Firebase session if needed
     if (window.auth) {
       window.auth.signOut();
@@ -41,21 +52,24 @@ function App() {
 
   return (
     <div className="app">
-      <Navbar 
-        loggedIn={!!token} 
-        setPage={setPage} 
+      <Navbar
+        loggedIn={!!token}
+        setPage={setPage}
         currentPage={page}
         onLogout={handleLogout}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
-      
+
       <main>
-        {page === "landing" && <Landing />}
-        {page === "login" && <Login onLogin={handleLogin} />}
+        {page === "landing" && <Landing setPage={setPage} />}
+        {page === "login" && <Login onLogin={handleLogin} setPage={setPage} />}
+        {page === "signup" && <Signup onLogin={handleLogin} />}
         {page === "profile" && token && <Profile token={token} />}
         {page === "scholarships" && token && <Scholarships token={token} />}
         {page === "reminders" && <Reminders />}
       </main>
-      
+
       <footer style={{
         textAlign: 'center',
         padding: '2rem',

@@ -1,68 +1,57 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { auth } from "../firebase";
+import { mockScholarships } from "../data/mockData";
 import "../styles/cards.css";
-import { auth } from '../firebase'; // Adjust path if needed
 
-export default function Scholarships({ token }) {
+export default function Scholarships() {
   const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetchScholarships();
-  }, []);
+  const [selectedScholarship, setSelectedScholarship] = useState(null);
 
   const fetchScholarships = async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      console.log("🔄 Fetching scholarships...");
-      
-      // Get current user and token
+
       const user = auth.currentUser;
       if (!user) {
         setError("Not logged in. Please login first.");
-        setLoading(false);
         return;
       }
-      
-      const token = await user.getIdToken(); // Get Firebase token
-      
-      // Add timeout
+
+      const token = await user.getIdToken();
+
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
       const response = await fetch(`${API_URL}/scholarships/eligible`, {
-        signal: controller.signal,
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          'Authorization': `Bearer ${token}`
+        },
+        signal: controller.signal
       });
-      
+
       clearTimeout(timeoutId);
-      
-      console.log("📥 Response received:", response.status);
-      
+
+
       if (!response.ok) {
         if (response.status === 401) {
-          // Token expired, redirect to login
           setError("Session expired. Please login again.");
           window.location.href = '/login';
           return;
         }
         throw new Error(`HTTP ${response.status}`);
       }
-      
+
       const data = await response.json();
-      console.log("✅ Data received:", data);
-      
+
       setList(data.scholarships || data || []); // Handle different response formats
-      
+
     } catch (err) {
-      console.error("💥 Error:", err);
-      
+      console.error("Scholarship fetch error:", err);
+
       if (err.name === 'AbortError') {
         setError("Request timed out. The server is taking too long to respond.");
       } else if (err.message.includes("Failed to fetch")) {
@@ -70,11 +59,16 @@ export default function Scholarships({ token }) {
       } else {
         setError(err.message);
       }
-      
+
       setList([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleUseDemoData = () => {
+    setList(mockScholarships);
+    setLoading(false);
   };
 
   if (loading) {
@@ -88,7 +82,7 @@ export default function Scholarships({ token }) {
             animation: 'spin 2s linear infinite'
           }}>🔍</div>
           <p>Scanning through government scholarship databases...</p>
-          
+
           <div style={{
             width: '300px',
             height: '4px',
@@ -104,49 +98,22 @@ export default function Scholarships({ token }) {
               animation: 'loading 2s infinite'
             }}></div>
           </div>
-          
+
           <div style={{ marginTop: '2rem' }}>
-            <button 
-              onClick={() => {
-                const mockData = [
-                  {
-                    scholarshipId: "mock_1",
-                    name: "Post Matric Scholarship for Minorities",
-                    provider: "Ministry of Minority Affairs",
-                    deadline: "2024-12-31",
-                    amount: "₹20,000 per annum",
-                    score: 1.0,
-                    reasons: ["Income ≤ ₹250,000", "Minority category"],
-                    apply_link: "https://scholarships.gov.in",
-                    description: "For minority community students"
-                  },
-                  {
-                    scholarshipId: "mock_2", 
-                    name: "Maharashtra Government Scholarship",
-                    provider: "Government of Maharashtra",
-                    deadline: "2024-10-31",
-                    amount: "Full tuition fee",
-                    score: 0.8,
-                    reasons: ["State = Maharashtra", "OBC category"],
-                    apply_link: "https://mahadbt.maharashtra.gov.in",
-                    description: "State scholarship for OBC students"
-                  }
-                ];
-                setList(mockData);
-                setLoading(false);
-              }}
-              style={{ 
+            <button
+              onClick={handleUseDemoData}
+              style={{
                 margin: '0.5rem',
                 background: '#f59e0b',
                 fontSize: '0.9rem'
               }}
             >
-              Use Demo Data (For Presentation)
+              Use Demo Data (Show Mock)
             </button>
-            
-            <button 
+
+            <button
               onClick={fetchScholarships}
-              style={{ 
+              style={{
                 margin: '0.5rem',
                 background: '#10b981',
                 fontSize: '0.9rem'
@@ -155,7 +122,7 @@ export default function Scholarships({ token }) {
               Retry Loading
             </button>
           </div>
-          
+
           <p style={{ marginTop: '2rem', color: '#64748b', fontSize: '0.9rem' }}>
             This may take a moment as we match your profile against 100+ scholarships...
           </p>
@@ -168,7 +135,7 @@ export default function Scholarships({ token }) {
     return (
       <div className="container">
         <h2>Error Loading Scholarships</h2>
-        <div className="card" style={{ 
+        <div className="card" style={{
           background: '#fef2f2',
           border: '2px solid #fecaca',
           color: '#dc2626'
@@ -178,10 +145,21 @@ export default function Scholarships({ token }) {
           <button onClick={fetchScholarships} style={{ marginTop: '1rem' }}>
             Try Again
           </button>
+          <button onClick={handleUseDemoData} style={{ marginTop: '1rem', marginLeft: '1rem', background: '#f59e0b' }}>
+            Force Demo Data
+          </button>
         </div>
       </div>
     );
   }
+
+  // Helper to determine badge color
+  const getBadgeColor = (score) => {
+    if (score >= 0.9) return { bg: '#10b981', label: 'Perfect Match' };
+    if (score >= 0.75) return { bg: '#3b82f6', label: 'Great Match' };
+    if (score >= 0.6) return { bg: '#f59e0b', label: 'Good Match' };
+    return { bg: '#64748b', label: 'Potential Match' };
+  };
 
   return (
     <div className="container">
@@ -197,77 +175,147 @@ export default function Scholarships({ token }) {
           <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📭</div>
           <h3 style={{ color: '#64748b' }}>No Eligible Scholarships Found</h3>
           <p>Complete your profile or update your information to see matching scholarships.</p>
-          <button 
-            onClick={() => window.location.hash = "#profile"} 
-            style={{ marginTop: '1rem' }}
-          >
-            Update Profile
-          </button>
+          <div style={{ marginTop: '1.5rem' }}>
+            <button
+              onClick={() => window.location.hash = "#profile"}
+              style={{ marginRight: '1rem' }}
+            >
+              Update Profile
+            </button>
+            <button
+              onClick={handleUseDemoData}
+              style={{ background: '#f59e0b' }}
+            >
+              Show Demo Data
+            </button>
+          </div>
         </div>
       ) : (
         <>
-          <p style={{ marginBottom: '2rem' }}>
-            Found <strong>{list.length}</strong> scholarships matching your profile
+          <p style={{ marginBottom: '2rem', color: '#64748b' }}>
+            Found <strong>{list.length}</strong> scholarships matching your profile. Click on a card to view details.
           </p>
-          
+
           <div className="scholarship-grid">
-            {list.map(s => (
-              <div className="card" key={s.scholarshipId}>
-                <div style={{
-                  position: 'absolute',
-                  top: '1rem',
-                  right: '1rem',
-                  background: s.score > 0.8 ? '#10b981' : s.score > 0.6 ? '#f59e0b' : '#ef4444',
-                  color: 'white',
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '20px',
-                  fontSize: '0.875rem',
-                  fontWeight: '600'
-                }}>
-                  {Math.round(s.score * 100)}% Match
-                </div>
-                
-                <h3>{s.name}</h3>
-                <p><b>🏛️ Provider:</b> {s.provider}</p>
-                <p><b>💰 Amount:</b> {s.amount}</p>
-                <p><b>📅 Deadline:</b> {s.deadline}</p>
-                {s.description && <p style={{ marginTop: '0.5rem' }}>{s.description}</p>}
-                
-                <div style={{ 
-                  marginTop: '1.5rem',
-                  display: 'flex',
-                  gap: '1rem',
-                  alignItems: 'center'
-                }}>
-                  <a 
-                    href={s.apply_link} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <button>
-                      🌐 Apply Now
-                    </button>
-                  </a>
-                </div>
-                
-                {s.reasons && s.reasons.length > 0 && (
-                  <div style={{ 
-                    marginTop: '1.5rem',
-                    padding: '1rem',
-                    background: '#f8fafc',
-                    borderRadius: '8px',
-                    borderLeft: '4px solid #4f46e5'
+            {list.map((s, index) => {
+              const badge = getBadgeColor(s.score);
+              return (
+                <div
+                  className="card"
+                  key={s.scholarshipId || index}
+                  onClick={() => setSelectedScholarship(s)}
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    background: badge.bg,
+                    color: 'white',
+                    padding: '0.25rem 0.75rem',
+                    borderRadius: '20px',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                   }}>
-                    <p style={{ fontSize: '0.9rem', margin: 0 }}>
-                      <b>Eligibility:</b> {s.reasons.join(", ")}
-                    </p>
+                    {Math.round(s.score * 100)}% Match
                   </div>
-                )}
-              </div>
-            ))}
+
+                  <h3 style={{ paddingRight: '4rem', fontSize: '1.5rem', marginBottom: '1rem' }}>{s.name}</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', color: '#64748b', fontSize: '1rem' }}>
+                    <div><b>🏛️ Provider:</b> {s.provider}</div>
+                    <div><b>💰 Amount:</b> {s.amount}</div>
+                    <div><b>⏳ Deadline:</b> {s.deadline}</div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </>
+      )}
+
+      {/* Detail Modal */}
+      {selectedScholarship && (
+        <div className="modal-overlay" onClick={() => setSelectedScholarship(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="close-btn" onClick={() => setSelectedScholarship(null)}>×</button>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <div style={{
+                display: 'inline-block',
+                background: getBadgeColor(selectedScholarship.score).bg,
+                color: 'white',
+                padding: '0.25rem 0.75rem',
+                borderRadius: '20px',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                marginBottom: '1rem'
+              }}>
+                {Math.round(selectedScholarship.score * 100)}% Match
+              </div>
+              <h2 style={{ margin: '0.5rem 0' }}>{selectedScholarship.name}</h2>
+              <p style={{ color: '#64748b', fontSize: '1.1rem' }}>{selectedScholarship.provider}</p>
+            </div>
+
+            <div style={{
+              background: '#f8fafc',
+              padding: '1.5rem',
+              borderRadius: '12px',
+              marginBottom: '1.5rem',
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '1rem'
+            }}>
+              <div>
+                <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Scholarship Amount</p>
+                <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>{selectedScholarship.amount}</p>
+              </div>
+              <div>
+                <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Application Deadline</p>
+                <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>{selectedScholarship.deadline}</p>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '2rem' }}>
+              <h4 style={{ marginBottom: '0.5rem' }}>About this Scholarship</h4>
+              <p style={{ lineHeight: '1.6', color: '#334155' }}>{selectedScholarship.description || "No description available."}</p>
+            </div>
+
+            {selectedScholarship.reasons && (
+              <div style={{
+                marginBottom: '2rem',
+                borderLeft: '4px solid #6366f1',
+                paddingLeft: '1rem'
+              }}>
+                <h4 style={{ marginBottom: '0.5rem', color: '#4f46e5' }}>Eligibility Criteria</h4>
+                <ul style={{ paddingLeft: '1.2rem', color: '#334155' }}>
+                  {selectedScholarship.reasons.map((r, i) => (
+                    <li key={i} style={{ marginBottom: '0.25rem' }}>{r}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <a
+              href={selectedScholarship.apply_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ textDecoration: 'none' }}
+            >
+              <button style={{
+                width: '100%',
+                padding: '1rem',
+                fontSize: '1.1rem',
+                background: 'linear-gradient(90deg, #4f46e5, #7c3aed)',
+                borderRadius: '12px',
+                boxShadow: '0 4px 6px -1px rgba(79, 70, 229, 0.2)'
+              }}>
+                Apply Now 🚀
+              </button>
+            </a>
+
+          </div>
+        </div>
       )}
     </div>
   );

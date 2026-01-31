@@ -1,46 +1,61 @@
 # app.py
-from fastapi import FastAPI
 import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes import scholarships, profile, auth
 
 app = FastAPI()
 
-# Get the port from environment variable (Render provides this)
+# Server configuration
 PORT = int(os.getenv("PORT", 8000))
 
-# Root endpoint - THIS WILL DEFINITELY WORK
+# CORS Configuration
+# Allow requests from local frontend and potential production domains
+origins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# API Routers
+app.include_router(scholarships.router)
+app.include_router(profile.router)
+app.include_router(auth.router)
+
 @app.get("/")
 def read_root():
     return {
-        "message": "FundMyStudy Backend is running!",
         "status": "active",
-        "api": "v1.0",
-        "endpoints": ["/", "/health", "/test", "/api/scholarships"]
+        "service": "FundMyStudy API",
+        "version": "1.0",
+        "endpoints": [
+            "/", 
+            "/health", 
+            "/scholarships/eligible",
+            "/profiles/me",
+            "/auth/test"
+        ]
     }
 
-# Health check
 @app.get("/health")
 def health_check():
-    return {"status": "healthy", "service": "FundMyStudy API"}
+    return {"status": "healthy"}
 
-# Test endpoint
 @app.get("/test")
 def test_endpoint():
-    return {"test": "success", "message": "API is working"}
+    return {"status": "success", "message": "API is operational"}
 
-# Scholarships endpoint
-@app.get("/api/scholarships")
-def get_scholarships():
-    return [
-        {"id": 1, "name": "Merit Scholarship", "amount": 5000},
-        {"id": 2, "name": "Need-Based Grant", "amount": 10000},
-        {"id": 3, "name": "Research Fellowship", "amount": 15000}
-    ]
-
-# User endpoint
-@app.get("/api/users/{user_id}")
-def get_user(user_id: int):
-    return {"user_id": user_id, "name": "John Doe", "email": "john@example.com"}
-
-# Print startup message
-print(f"✅ Server starting on port {PORT}")
-print(f"✅ Root URL: http://0.0.0.0:{PORT}/")
+if __name__ == "__main__":
+    import uvicorn
+    # Host must be 0.0.0.0 for Render compatibility
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
+else:
+    print(f"Server initialized on port {PORT}")

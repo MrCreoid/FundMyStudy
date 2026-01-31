@@ -13,8 +13,7 @@ logger = logging.getLogger(__name__)
 @router.get("/eligible")
 async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
     """
-    Get scholarships eligible for current user
-    WITH TIMEOUT PROTECTION for better performance
+    Get scholarships eligible for current user.
     """
     try:
         logger.info(f"🎯 Getting eligible scholarships for user: {uid}")
@@ -30,9 +29,8 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
             }
 
         profile = profile_doc.to_dict()
-        logger.info(f"📋 Processing profile for: {profile.get('name', 'Unknown')}")
         
-        # Get all active scholarships WITH LIMIT for performance
+        # Get active scholarships (limited for performance)
         scholarships_ref = db.collection("scholarships").where("active", "==", True).limit(15)
         scholarships = list(scholarships_ref.stream())
         
@@ -45,7 +43,7 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
                 "profile_completed": True
             }
         
-        logger.info(f"🔍 Checking {len(scholarships)} scholarships against profile")
+
         
         results = []
         
@@ -58,7 +56,7 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
             rules = list(rules_ref.stream())
             
             if not rules:
-                logger.debug(f"⚠️ No eligibility rules found for: {sch_data.get('name')}")
+
                 continue
             
             for rule_doc in rules:
@@ -129,7 +127,7 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
 @router.get("/eligible-fast")
 async def get_eligible_scholarships_fast(uid: str = Depends(get_current_user)):
     """
-    FAST VERSION: Returns pre-computed or limited results for demo
+    Fast lookup returning pre-computed or limited results for demo purposes.
     """
     try:
         logger.info(f"🚀 Fast scholarships lookup for user: {uid}")
@@ -223,10 +221,8 @@ async def get_all_scholarships(limit: int = 20):
 def refresh_scholarships():
     """Manual scholarship data refresh"""
     return {
-        "message": "Scraping is manual. Run in terminal: cd scraper && python3 main.py --source all",
-        "command": "cd scraper && python3 main.py --source all",
-        "status": "manual_mode",
-        "timestamp": datetime.utcnow().isoformat()
+        "message": "Scraper must be run manually: python3 scraper/main.py --source all",
+        "status": "manual_only"
     }
 
 @router.get("/test")
