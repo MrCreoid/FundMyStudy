@@ -56,7 +56,10 @@ export default function Signup({ onLogin }) {
             const token = await user.getIdToken();
 
             // 2. Create Profile in Backend
-            const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+            const API_URL = import.meta.env.VITE_API_URL ||
+                ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+                    ? "http://localhost:8000"
+                    : "https://fundmystudy-1.onrender.com");
             const response = await fetch(`${API_URL}/profiles`, {
                 method: "POST",
                 headers: {

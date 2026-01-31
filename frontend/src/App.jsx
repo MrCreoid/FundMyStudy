@@ -7,6 +7,9 @@ import Profile from "./pages/Profile1";
 import Scholarships from "./pages/Scholarships";
 import Reminders from "./pages/Reminders1";
 
+import { signOut } from "firebase/auth";
+import { auth } from "./firebase";
+
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem('authToken') || null);
   const [page, setPage] = useState(() => localStorage.getItem('lastPage') || "landing");
@@ -44,10 +47,8 @@ function App() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('lastPage');
 
-    // Clear any Firebase session if needed
-    if (window.auth) {
-      window.auth.signOut();
-    }
+    // Clear Firebase session
+    signOut(auth).catch(console.error);
   };
 
   return (

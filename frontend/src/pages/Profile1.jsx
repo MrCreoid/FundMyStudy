@@ -20,6 +20,7 @@ export default function Profile({ token }) {
 
   const [isOtherCourse, setIsOtherCourse] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchProfile();
@@ -27,33 +28,47 @@ export default function Profile({ token }) {
 
   const fetchProfile = async () => {
     try {
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      setError(null);
+      const API_URL = import.meta.env.VITE_API_URL ||
+        ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+          ? "http://localhost:8000"
+          : "https://fundmystudy-1.onrender.com");
       const response = await fetch(`${API_URL}/profiles/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        const loadedCourse = data.course || "";
-
-        // Determine if loaded course is "Other"
-        const isCustom = loadedCourse && !COURSE_OPTIONS.includes(loadedCourse);
-        setIsOtherCourse(isCustom);
-
-        setProfile({
-          name: data.name || "",
-          income: data.income || "",
-          caste: data.caste || "",
-          category: data.category || "",
-          state: data.state || "",
-          course: loadedCourse,
-          marks: data.marks || ""
-        });
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("Session expired. Please login again.");
+        }
+        throw new Error(`Failed to load profile: ${response.status}`);
       }
+
+      const data = await response.json();
+      const loadedCourse = data.course || "";
+
+      // Determine if loaded course is "Other"
+      const isCustom = loadedCourse && !COURSE_OPTIONS.includes(loadedCourse);
+      setIsOtherCourse(isCustom);
+
+      setProfile({
+        name: data.name || "",
+        income: data.income || "",
+        caste: data.caste || "",
+        category: data.category || "",
+        state: data.state || "",
+        course: loadedCourse,
+        marks: data.marks || ""
+      });
     } catch (error) {
       console.error("Error fetching profile:", error);
+      setError(error.message);
+      if (error.message.includes("Session expired")) {
+        // Optional: Trigger logout potentially or let user see the error
+        // For now, showing the error is better than silent fail
+      }
     }
   };
 
@@ -75,7 +90,10 @@ export default function Profile({ token }) {
   };
 
   const saveProfile = async () => {
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+    const API_URL = import.meta.env.VITE_API_URL ||
+      ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+        ? "http://localhost:8000"
+        : "https://fundmystudy-1.onrender.com");
 
     if (!profile.name || !profile.state || !profile.course) {
       alert("Please fill in required fields: Name, State, and Course");
@@ -119,6 +137,28 @@ export default function Profile({ token }) {
     <div className="container">
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <h2>Complete Your Profile</h2>
+        {error && (
+          <div style={{
+            background: '#fee2e2',
+            color: '#dc2626',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            border: '1px solid #fecaca'
+          }}>
+            ⚠️ {error}
+            <button
+              onClick={fetchProfile}
+              style={{
+                marginLeft: '1rem',
+                padding: '0.25rem 0.75rem',
+                fontSize: '0.9rem',
+                cursor: 'pointer'
+              }}>
+              Retry
+            </button>
+          </div>
+        )}
         <p style={{ marginBottom: '2rem', color: 'var(--text-muted)' }}>
           Fill in your details to get personalized scholarship recommendations.
           <br />

@@ -25,7 +25,10 @@ export default function Scholarships() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+      const API_URL = import.meta.env.VITE_API_URL ||
+        ((window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+          ? "http://localhost:8000"
+          : "https://fundmystudy-1.onrender.com");
       const response = await fetch(`${API_URL}/scholarships/eligible`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -68,6 +71,7 @@ export default function Scholarships() {
 
   const handleUseDemoData = () => {
     setList(mockScholarships);
+    setError(null);
     setLoading(false);
   };
 
