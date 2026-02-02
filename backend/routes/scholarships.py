@@ -79,6 +79,29 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
             except Exception:
                 pass
             
+            # Extract criteria for frontend display/filtering
+            criteria = {
+                "gender": "Any",
+                "category": "Any"
+            }
+            
+            for cond in conditions:
+                field = cond.get("field", "").lower()
+                value = cond.get("value")
+                operator = cond.get("operator")
+                
+                if field == "gender":
+                    if operator == "==":
+                        criteria["gender"] = value
+                    elif operator == "IN" and isinstance(value, list):
+                        criteria["gender"] =  ", ".join(value)
+                
+                elif field == "category" or field == "caste":
+                    if operator == "==":
+                        criteria["category"] = value
+                    elif operator == "IN" and isinstance(value, list):
+                         criteria["category"] = ", ".join(value)
+
             # If eligible, add to results
             if evaluation["eligible"]:
                 result_item = {
@@ -89,6 +112,7 @@ async def get_eligible_scholarships(uid: str = Depends(get_current_user)):
                     "amount": sch_data.get("amount", "Not specified"),
                     "score": evaluation["score"],
                     "reasons": evaluation["reasons"],
+                    "criteria": criteria,  # New field
                     "apply_link": sch_data.get("application_link") or 
                                  sch_data.get("source_url", "#"),
                     "description": sch_data.get("description", ""),

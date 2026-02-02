@@ -9,6 +9,8 @@ export default function Scholarships({ setPage }) {
   const [error, setError] = useState(null);
   const [selectedScholarship, setSelectedScholarship] = useState(null);
 
+  // Filter States removed as per user request to rely on profile data (backend handled)
+
   const fetchScholarships = async () => {
     try {
       setLoading(true);
@@ -253,6 +255,19 @@ export default function Scholarships({ setPage }) {
                     <div><b>🏛️ Provider:</b> {s.provider}</div>
                     <div><b>💰 Amount:</b> {s.amount}</div>
                     <div><b>⏳ Deadline:</b> {formatDeadline(s.deadline)}</div>
+                    {/* Display Criteria Tags if specific */}
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                      {s.criteria?.gender && s.criteria.gender !== "Any" && (
+                        <span style={{ fontSize: '0.75rem', background: '#f3e8ff', color: '#7e22ce', padding: '0.1rem 0.5rem', borderRadius: '4px' }}>
+                          {s.criteria.gender} Only
+                        </span>
+                      )}
+                      {s.criteria?.category && s.criteria.category !== "Any" && (
+                        <span style={{ fontSize: '0.75rem', background: '#ecfccb', color: '#4d7c0f', padding: '0.1rem 0.5rem', borderRadius: '4px' }}>
+                          {s.criteria.category}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -325,7 +340,9 @@ export default function Scholarships({ setPage }) {
             )}
 
             <a
-              href={selectedScholarship.apply_link}
+              href={selectedScholarship.apply_link && !selectedScholarship.apply_link.startsWith('http')
+                ? `https://${selectedScholarship.apply_link}`
+                : selectedScholarship.apply_link || "#"}
               target="_blank"
               rel="noopener noreferrer"
               style={{ textDecoration: 'none' }}
