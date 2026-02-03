@@ -156,10 +156,109 @@
   to { opacity: 1; }
 }
 
+
 @keyframes scaleUp {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* Modal Internal Styling */
+.modal-header-section {
+    margin-bottom: 1.5rem;
+}
+
+.match-badge {
+    display: inline-block;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.modal-title {
+    margin: 0.5rem 0;
+    color: var(--text-main);
+}
+
+.modal-provider {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.modal-info-grid {
+    background: var(--card-bg); /* Assuming card-bg handles dark/light correctly in theme */
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    border: 1px solid var(--input-border);
+}
+
+.modal-info-label {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.modal-info-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--text-main);
+}
+
+.modal-section-title {
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.modal-text {
+    line-height: 1.6;
+    color: var(--text-main);
+}
+
+.modal-criteria-section {
+    margin-bottom: 2rem;
+    border-left: 4px solid #6366f1;
+    padding-left: 1rem;
+}
+
+.modal-criteria-title {
+    margin-bottom: 0.5rem;
+    color: #4f46e5;
+}
+
+.modal-criteria-list {
+    padding-left: 1.2rem;
+    color: var(--text-main);
+}
+
+.modal-criteria-list li {
+    margin-bottom: 0.25rem;
+}
+
+/* Dark Mode Overrides for Modal */
+[data-theme="dark"] .modal-content {
+    background: #1e293b; /* Dark slate background */
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] .modal-criteria-title {
+    color: #818cf8; /* Lighter indigo for dark mode */
+}
+
+[data-theme="dark"] .modal-criteria-section {
+    border-left-color: #818cf8;
+}
+
+[data-theme="dark"] .modal-info-grid {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
 
 /* Reminders Page Specific Aesthetics */
 .test-email-btn {

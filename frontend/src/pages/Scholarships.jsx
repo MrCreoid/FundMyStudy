@@ -282,58 +282,36 @@ export default function Scholarships({ setPage }) {
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="close-btn" onClick={() => setSelectedScholarship(null)}>×</button>
 
-            <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{
-                display: 'inline-block',
-                background: getBadgeColor(selectedScholarship.score).bg,
-                color: 'white',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '20px',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                marginBottom: '1rem'
-              }}>
+            <div className="modal-header-section">
+              <div className="match-badge" style={{ background: getBadgeColor(selectedScholarship.score).bg }}>
                 {Math.round(selectedScholarship.score * 100)}% Match
               </div>
-              <h2 style={{ margin: '0.5rem 0' }}>{selectedScholarship.name}</h2>
-              <p style={{ color: '#64748b', fontSize: '1.1rem' }}>{selectedScholarship.provider}</p>
+              <h2 className="modal-title">{selectedScholarship.name}</h2>
+              <p className="modal-provider">{selectedScholarship.provider}</p>
             </div>
 
-            <div style={{
-              background: 'var(--card-bg)',
-              padding: '1.5rem',
-              borderRadius: '12px',
-              marginBottom: '1.5rem',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '1.5rem',
-              border: '1px solid var(--input-border)'
-            }}>
+            <div className="modal-info-grid">
               <div>
-                <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Scholarship Amount</p>
-                <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>{selectedScholarship.amount}</p>
+                <p className="modal-info-label">Scholarship Amount</p>
+                <p className="modal-info-value">{selectedScholarship.amount}</p>
               </div>
               <div>
-                <p style={{ color: '#64748b', fontSize: '0.875rem' }}>Application Deadline</p>
-                <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>{formatDeadline(selectedScholarship.deadline)}</p>
+                <p className="modal-info-label">Application Deadline</p>
+                <p className="modal-info-value">{formatDeadline(selectedScholarship.deadline)}</p>
               </div>
             </div>
 
             <div style={{ marginBottom: '2rem' }}>
-              <h4 style={{ marginBottom: '0.5rem' }}>About this Scholarship</h4>
-              <p style={{ lineHeight: '1.6', color: '#334155' }}>{selectedScholarship.description || "No description available."}</p>
+              <h4 className="modal-section-title">About this Scholarship</h4>
+              <p className="modal-text">{selectedScholarship.description || "No description available."}</p>
             </div>
 
             {selectedScholarship.reasons && (
-              <div style={{
-                marginBottom: '2rem',
-                borderLeft: '4px solid #6366f1',
-                paddingLeft: '1rem'
-              }}>
-                <h4 style={{ marginBottom: '0.5rem', color: '#4f46e5' }}>Eligibility Criteria</h4>
-                <ul style={{ paddingLeft: '1.2rem', color: '#334155' }}>
+              <div className="modal-criteria-section">
+                <h4 className="modal-criteria-title">Eligibility Criteria</h4>
+                <ul className="modal-criteria-list">
                   {selectedScholarship.reasons.map((r, i) => (
-                    <li key={i} style={{ marginBottom: '0.25rem' }}>{r}</li>
+                    <li key={i}>{r}</li>
                   ))}
                 </ul>
               </div>

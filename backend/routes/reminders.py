@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from services.firestore import db
 from services.auth_dependency import get_current_user, get_current_user_details
 from services.email_service import send_email
@@ -9,8 +9,9 @@ router = APIRouter(prefix="/reminders", tags=["reminders"])
 logger = logging.getLogger(__name__)
 
 @router.post("/subscribe")
-async def subscribe_reminder(
+def subscribe_reminder(
     data: dict,
+    background_tasks: BackgroundTasks,
     user: dict = Depends(get_current_user_details)
 ):
     """
@@ -54,22 +55,23 @@ async def subscribe_reminder(
     
     db.collection("reminders").document(reminder_id).set(reminder_data)
     
-    # 3. Send Confirmation Email
+    # 3. Send Confirmation Email (Async)
     subject = f"🔔 Reminder Set: {sch_name}"
     body = f"Hello,\n\nYou have successfully subscribed to deadline reminders for:\n\n🎓 {sch_name}\n📅 Deadline: {deadline}\n\nWe will notify you 7 days before the deadline.\n\nBest,\nFundMyStudy Team"
     
-    email_result = send_email(email, subject, body)
+    # Offload to background task
+    background_tasks.add_task(send_email, email, subject, body)
     
-    logger.info(f"🔔 Email Reminder set for user {email} on scholarship {scholarship_id}. Status: {email_result['status']}")
+    logger.info(f"🔔 Email Reminder queued for user {email} on scholarship {scholarship_id}.")
     
     return {
         "status": "success",
-        "message": "Reminder set successfully",
-        "email_status": email_result
+        "message": "Reminder set successfully (Email queued)",
+        "email_status": "queued"
     }
 
 @router.get("/")
-async def get_my_reminders(uid: str = Depends(get_current_user)):
+def get_my_reminders(uid: str = Depends(get_current_user)):
     """Get list of active reminders for the user"""
     try:
         reminders = []
@@ -87,8 +89,9 @@ async def get_my_reminders(uid: str = Depends(get_current_user)):
         return {"count": 0, "reminders": []}
 
 @router.post("/test-email")
-async def test_email_send(
+def test_email_send(
     data: dict,
+    background_tasks: BackgroundTasks,
     user: dict = Depends(get_current_user_details)
 ):
     """Debug endpoint to force send an Email to the user"""
@@ -99,6 +102,6 @@ async def test_email_send(
     message = data.get("message", "This is a test email from FundMyStudy.")
     subject = "🛠 FundMyStudy Test Email"
     
-    result = send_email(email, subject, message)
+    background_tasks.add_task(send_email, email, subject, message)
     
-    return {"result": result, "email": email}
+    return {"result": "queued", "email": email}
